@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alvarenga Place</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background-color: white;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .financial {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Alvarenga Place</a>
+  </nav>
+  
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-lg-4 mb-4">
+        <div class="card">
+          <div class="card-header">Cotação de Moedas em relação ao Real</div>
+          <div class="card-body">
+            <p class="card-text">Cotação do Dólar: <span id="dollarToReal">Carregando...</span></p>
+            <p class="card-text">Cotação do Euro: <span id="euroToReal">Carregando...</span></p>
+            <p class="card-text">Cotação do Bitcoin: <span id="bitcoinToReal">Carregando...</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card">
+          <div class="card-header">Índices Financeiros</div>
+          <div class="card-body">
+            <p class="card-text">Cotação do Ibovespa: <span id="ibovespaIndex">Carregando...</span></p>
+            <p class="card-text">Cotação do S&P 500: <span id="sp500Index">Carregando...</span></p>
+            <p class="card-text">Cotação do N100: <span id="n100Index">Carregando...</span></p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="card">
+          <div class="card-header">Índices de Commodities</div>
+          <div class="card-body">
+            <p class="card-text">Petróleo: <span id="oilIndex">Carregando...</span></p>
+            <p class="card-text">Boi Gordo: <span id="cattleIndex">Carregando...</span></p>
+            <p class="card-text">Café: <span id="coffeeIndex">Carregando...</span></p>
+            <p class="card-text">Ouro: <span id="goldIndex">Carregando...</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    async function fetchFinancialData() {
+      try {
+        const alphaVantageApiKey = 'O8Z9XFRTSGP1WOZ9';
+
+        // Moedas em relação ao Real
+        const responseCurrencies = await fetch(`https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=USD,EUR,BTC&to_currency=BRL&apikey=${alphaVantageApiKey}`);
+        const dataCurrencies = await responseCurrencies.json();
+
+        const dollarToReal = dataCurrencies['Realtime Currency Exchange Rate']['5. Exchange Rate'];
+        const euroToReal = dataCurrencies['Realtime Currency Exchange Rate']['6. Exchange Rate'];
+        const bitcoinToReal = dataCurrencies['Realtime Currency Exchange Rate']['8. Exchange Rate'];
+
+        // Índices Financeiros
+        const responseIndices = await fetch(`https://www.alphavantage.co/query?function=BATCH_STOCK_QUOTES&symbols=IBOVESPA,.INX,N100&apikey=${alphaVantageApiKey}`);
+        const dataIndices = await responseIndices.json();
+
+        const ibovespaIndex = dataIndices['Stock Quotes'][0]['05. price'];
+        const sp500Index = dataIndices['Stock Quotes'][1]['05. price'];
+        const n100Index = dataIndices['Stock Quotes'][2]['05. price'];
+
+        // Índices de Commodities
+        const responseCommodities = await fetch(`https://www.alphavantage.co/query?function=BATCH_STOCK_QUOTES&symbols=OIL,BB1,BB2,GC&apikey=${alphaVantageApiKey}`);
+        const dataCommodities = await responseCommodities.json();
+
+        const oilIndex = dataCommodities['Stock Quotes'][0]['05. price'];
+        const cattleIndex = dataCommodities['Stock Quotes'][1]['05. price'];
+        const coffeeIndex = dataCommodities['Stock Quotes'][2]['05. price'];
+        const goldIndex = dataCommodities['Stock Quotes'][3]['05. price'];
+
+        document.getElementById('dollarToReal').textContent = dollarToReal;
+        document.getElementById('euroToReal').textContent = euroToReal;
+        document.getElementById('bitcoinToReal').textContent = bitcoinToReal;
+        document.getElementById('ibovespaIndex').textContent = ibovespaIndex;
+        document.getElementById('sp500Index').textContent = sp500Index;
+        document.getElementById('n100Index').textContent = n100Index;
+        document.getElementById('oilIndex').textContent = oilIndex;
+        document.getElementById('cattleIndex').textContent = cattleIndex;
+        document.getElementById('coffeeIndex').textContent = coffeeIndex;
+        document.getElementById('goldIndex').textContent = goldIndex;
+      } catch (error) {
+        console.error('Erro ao buscar dados financeiros:', error);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchFinancialData();
+      setInterval(fetchFinancialData, 60000); // Atualizar a cada minuto
+    });
+  </script>
+</body>
+</html>
